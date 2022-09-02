@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="payment.css">
+  <title>ReniPay</title>
+  <!-- <script type="module" src="https://cdn.jsdelivr.net/npm/walletconnect@1.7.8/dist/umd/index.min.js"></script> -->
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="title">Reni</h1>
+            <h2 >Payment page</h2>
+        </header>
+        <section class="portfolio">
+            <h3>Your portfolio</h3>
+            <div class="tokens">
+                <div class="token">
+                    <div class="token-img"></div>
+                    <p><strong>4 BNB</strong></p>
+                    <p>1,217 USD</p>
+                </div>
+                <div class="token">
+                    <div class="token-img"></div>
+                    <p><strong>4 BNB</strong></p>
+                    <p>1,217 USD</p>
+                </div>
+                <div class="token">
+                    <div class="token-img"></div>
+                    <p><strong>4 BNB</strong></p>
+                    <p>1,217 USD</p>
+                </div>
+                <div class="token">
+                    <div class="token-img"></div>
+                    <p><strong>4 BNB</strong></p>
+                    <p>1,217 USD</p>
+                </div>
+                <div class="token">
+                    <div class="token-img"></div>
+                    <p><strong>4 BNB</strong></p>
+                    <p>1,217 USD</p>
+                </div>
+            </div>
+        </section>
+        <section class="paymentdetails">
+            <h3>Payment Details</h3>
+            <form>
+                <div class="form-element">
+                    <label for="to">Payment to: </label>
+                    <input name="to" id="to" value="Hexdee" disabled>
+                </div>
+                <div class="form-element">
+                    <label for="from">From: </label>
+                    <input name="from" id="from" value="Please connect wallet" disabled>
+                </div>
+                <div class="connect" onclick="connect()"><div class="connect-icon"></div>Connect Wallet</div>
+                <div class="form-element">
+                    <label for="token">Token: </label>
+                    <select name="token" id="token">
+                        <option value="">Select Token</option>
+                        <!-- <option value="bnb">4 BNB</option>
+                        <option value="eth">2.3 ETH</option>
+                        <option value="eth">98 MATIC</option> -->
+                    </select>
+                </div>                
+                <button>Pay with Reni</button>
+            </form>
+        </section>
+    </div>
+    <script>
+        const setFrom = (account) => {
+            document.getElementById("from").value = account;
+        }
+
+        const getTokens = async (account) => {
+            try {
+                const url = new URL(`https://deep-index.moralis.io/api/v2/${account}/erc20?chain=mumbai`);
+                const res = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': '4QdwNluHelpTw9qmoAXTsaodpYXP1E1cpdrRmqbTGf9sPhO9hBFPrRydJxkl5TPP'
+                    }
+                })
+                return res.json();
+            } catch (error) {
+                console.log()
+                console.log(error);
+            }
+        }
+
+        const setTokens = async (account) => {
+            const tokens = await getTokens(account);
+            document.getElementById("token").innerHTML = 
+                '<option value="">Select Token</option>' + 
+                tokens.map((token) => {
+                    return `<option value="${token.token_address}">${token.symbol}</option>`
+                })
+        }
+
+        const connect = async() => {
+            if (window.ethereum) {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const account = accounts[0];
+                setFrom(account);
+                document.querySelector(".connect").style.display = "none";
+                await setTokens(account);
+            }
+            window.ethereum.on('accountsChanged', function (accounts) {
+                setFrom(accounts[0]);
+                getTokens(accounts[0]);
+            });
+        }
+
+
+
+    </script>
+</body>
+</html>
