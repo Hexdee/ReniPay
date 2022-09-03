@@ -31,11 +31,16 @@ header {
 
 .portfolio {
     background-color: #132d46;
+    min-height: 200px;
     margin-bottom: 20px;
     padding: 20px;
     border-radius: 8px;
     color: white;
     text-align: center;
+}
+
+.tokens > marquee {
+    margin-top: 70px;
 }
 
 .portfolio h3 {

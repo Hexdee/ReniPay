@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="payment.css">
   <title>ReniPay</title>
-  <!-- <script type="module" src="https://cdn.jsdelivr.net/npm/walletconnect@1.7.8/dist/umd/index.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.1/dist/umd/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -16,7 +17,8 @@
         <section class="portfolio">
             <h3>Your portfolio</h3>
             <div class="tokens">
-                <div class="token">
+                <marquee>Wallet not connected</marquee>
+                <!-- <div class="token">
                     <div class="token-img"></div>
                     <p><strong>4 BNB</strong></p>
                     <p>1,217 USD</p>
@@ -40,7 +42,7 @@
                     <div class="token-img"></div>
                     <p><strong>4 BNB</strong></p>
                     <p>1,217 USD</p>
-                </div>
+                </div> -->
             </div>
         </section>
         <section class="paymentdetails">
@@ -64,16 +66,28 @@
                         <option value="eth">98 MATIC</option> -->
                     </select>
                 </div>                
-                <button>Pay with Reni</button>
+                <button type="button" onclick="makePayment()">Pay with Reni</button>
             </form>
         </section>
     </div>
     <script>
-        const setFrom = (account) => {
+         // https://docs.walletconnect.com/quick-start/dapps/web3-provider
+        var provider = new WalletConnectProvider.default({
+        rpc: {
+            1: "https://cloudflare-eth.com/", // https://ethereumnodes.com/
+            137: "https://polygon-rpc.com/", // https://docs.polygon.technology/docs/develop/network-details/network/
+            8001: "https://rpc-mumbai.maticvigil.com/",
+            // ...
+
+        },
+        // bridge: 'https://bridge.walletconnect.org',
+        });
+
+        const setFrom = () => {
             document.getElementById("from").value = account;
         }
 
-        const getTokens = async (account) => {
+        const getTokens = async () => {
             try {
                 const url = new URL(`https://deep-index.moralis.io/api/v2/${account}/erc20?chain=mumbai`);
                 const res = await fetch(url, {
@@ -85,12 +99,11 @@
                 })
                 return res.json();
             } catch (error) {
-                console.log()
                 console.log(error);
             }
         }
 
-        const setTokens = async (account) => {
+        const setTokens = async () => {
             const tokens = await getTokens(account);
             document.getElementById("token").innerHTML = 
                 '<option value="">Select Token</option>' + 
@@ -99,22 +112,56 @@
                 })
         }
 
+        const setPortfolio = async () => {
+            const tokens = await getTokens(account);
+            let tokensElement = "";
+            console.log(tokens);
+            tokens.map((tkn) => {
+                tokensElement += `<div class="token">
+                    <div class="token-img"></div>
+                    <p><strong>4 ${tkn.symbol}</strong></p>
+                    <p>1,217 USD</p>
+                    </div>`        
+            })
+            document.querySelector(".tokens").innerHTML = tokensElement;
+        } 
+
+        const init = (account) => {
+            if (account) {
+                window.account = account;
+                setFrom();
+                setTokens();
+                setPortfolio();
+                document.querySelector(".connect").style.display = "none";
+            }
+        }
+
         const connect = async() => {
             if (window.ethereum) {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 const account = accounts[0];
-                setFrom(account);
-                document.querySelector(".connect").style.display = "none";
-                await setTokens(account);
+                init(account);
+                window.ethereum.on('accountsChanged', function (accounts) {
+                    init(accounts[0]);
+                });
             }
-            window.ethereum.on('accountsChanged', function (accounts) {
-                setFrom(accounts[0]);
-                getTokens(accounts[0]);
-            });
+            else {
+                await provider.enable();
+
+                 //  Create Web3 instance
+                const web3 = new Web3(provider);
+                window.w3 = web3
+                const accounts  = await web3.eth.getAccounts(); // get all connected accounts
+                const account = accounts[0];
+                init(account);
+            }
+            
         }
 
-
-
+        const makePayment = () => {
+            const token = document.getElementById("token").value;
+            console.log(token);
+        }
     </script>
 </body>
 </html>
