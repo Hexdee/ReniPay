@@ -21,12 +21,12 @@ const Payment = require("./model/payment");
 
 
 app.get("/", (req, res) => {
-  console.log(req.query.id);
-  const id = req.query.id;
-  const payment = Payment.findOne({id: "2958aaf6-5025-4cb4-b180-1693d2f89564"});
-  console.log("payment", payment)
 
-  res.sendFile(__dirname + "/payment.html");
+
+
+
+
+  res.send("Welcome to ReniPay payment api🙌");
 });
 
 app.get("/pay/:id", async(req, res) => {
