@@ -48,6 +48,10 @@ app.get("/pay/:id", async(req, res) => {
 });
 
 app.post("/create", auth, async (req, res) => {
+  res.send("Create payment link");
+})
+
+app.post("/create", auth, async (req, res) => {
     try {
         // Get payment details
         const { amount, description} = req.body;
