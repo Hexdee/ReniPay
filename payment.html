@@ -18,31 +18,6 @@
             <h3>Your portfolio</h3>
             <div class="tokens">
                 <marquee>Wallet not connected</marquee>
-                <!-- <div class="token">
-                    <div class="token-img"></div>
-                    <p><strong>4 BNB</strong></p>
-                    <p>1,217 USD</p>
-                </div>
-                <div class="token">
-                    <div class="token-img"></div>
-                    <p><strong>4 BNB</strong></p>
-                    <p>1,217 USD</p>
-                </div>
-                <div class="token">
-                    <div class="token-img"></div>
-                    <p><strong>4 BNB</strong></p>
-                    <p>1,217 USD</p>
-                </div>
-                <div class="token">
-                    <div class="token-img"></div>
-                    <p><strong>4 BNB</strong></p>
-                    <p>1,217 USD</p>
-                </div>
-                <div class="token">
-                    <div class="token-img"></div>
-                    <p><strong>4 BNB</strong></p>
-                    <p>1,217 USD</p>
-                </div> -->
             </div>
         </section>
         <section class="paymentdetails">
@@ -50,17 +25,17 @@
             <form>
                 <div class="form-element">
                     <label for="to">Payment to: </label>
-                    <input name="to" id="to" value="Hexdee" disabled>
+                    <input name="to" id="to" value="Hexdee" readonly>
                 </div>
                 <div class="form-element">
                     <label for="from">From: </label>
-                    <input name="from" id="from" value="Please connect wallet" disabled>
+                    <input name="from" id="from" value="Please connect wallet" readonly>
                 </div>
                 <div class="form-element">
                     <label for="amount">Amount: </label>
-                    <input type="number" name="amount" id="amount" value="500" disabled>
+                    <input type="number" name="amount" id="amount" value="500" readonly>
                 </div>
-                <div class="connect" onclick="connect()"><div class="connect-icon"></div>Connect Wallet</div>
+                <div class="connect" onclick="connect()"><div class="connect-icon"></div><span id="connect">Connect Wallet</span> </div>
                 <div class="form-element">
                     <label for="token">Token: </label>
                     <select name="token" id="token">
@@ -70,15 +45,18 @@
                         <option value="eth">98 MATIC</option> -->
                     </select>
                 </div>                
-                <button type="button" onclick="makePayment()">Pay with Reni</button>
+                <button type="button" id="pay" onclick="makePayment()">Pay with Reni</button>
+                <button type="button" id="approve" onclick="approveToken()">Approve Token</button>
             </form>
         </section>
     </div>
     <script>
-        var reniAddress = "0xF0ac04e4938bcf3Ce97717C6249b288c9D2d08Fd";
+        var reniAddress = "0x0cfcf37B2992027ddBAEd9e7883eBeb5EDa94Ec3";
         var reniAbi = [ {"inputs": [{ "internalType": "address", "name": "_token", "type": "address"}, { "internalType": "uint256", "name": "_amountInUSD", "type": "uint256"}], "name": "makePayment", "outputs": [], "stateMutability": "payable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_amountInUSD", "type": "uint256"}, { "internalType": "address", "name": "_token", "type": "address" }], "name": "requiredTokenAmount", "outputs": [{ "internalType": "uint256", "name": "_tokenAmount", "type": "uint256"}], "stateMutability": "view", "type": "function"}];
-        var erc20Abi = [];
-         // https://docs.walletconnect.com/quick-start/dapps/web3-provider
+        var erc20Abi = [{"constant": false, "inputs": [{ "name": "_spender", "type": "address"}, { "name": "_value", "type": "uint256"} ], "name": "approve", "outputs": [{ "name": "", "type": "bool"}], "payable": false, "stateMutability": "nonpayable", "type": "function"}, { "constant": true, "inputs": [{ "name": "_owner", "type": "address"}], "name": "balanceOf", "outputs": [{ "name": "balance", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function"},{ "constant": true, "inputs": [ { "name": "_owner", "type": "address"}, { "name": "_spender", "type": "address" }], "name": "allowance", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }];
+        var address0 = "0x0000000000000000000000000000000000000000";
+
+        // https://docs.walletconnect.com/quick-start/dapps/web3-provider
         var provider = new WalletConnectProvider.default({
         rpc: {
             //1: "https://cloudflare-eth.com/", // https://ethereumnodes.com/
@@ -89,6 +67,26 @@
         },
         // bridge: 'https://bridge.walletconnect.org',
         });
+
+        document.getElementById("token").addEventListener("change", async(e) => {
+            const requiredTokenValue = 1;
+            const tokenAddress = e.target.value;
+            const tokenContract = await contract(erc20Abi, tokenAddress);
+            try {
+                const allowance = Number(await tokenContract.methods.allowance(account, reniAddress).call());
+                const payBtn = document.getElementById("pay");
+                const approveBtn = document.getElementById("approve");
+                if (allowance < requiredTokenValue) {
+                    payBtn.style.display = "none";
+                    approveBtn.style.display = "block"
+                } else {
+                    payBtn.style.display = "block";
+                    approveBtn.style.display = "none"
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        })
 
         const setFrom = () => {
             document.getElementById("from").value = account;
@@ -110,40 +108,53 @@
             }
         }
 
-        const setTokens = async () => {
-            const tokens = await getTokens(account);
+        const setTokens = async (tokens) => {
             document.getElementById("token").innerHTML = 
-                '<option value="">Select Token</option>' + 
                 tokens.map((token) => {
                     return `<option value="${token.token_address}">${token.symbol}</option>`
+                // }
                 })
         }
 
-        const setPortfolio = async () => {
-            const tokens = await getTokens(account);
+        const setPortfolio = async (tokens) => {
             let tokensElement = "";
-            console.log(tokens);
             tokens.map((tkn) => {
+                let balance = tkn.balance / 10e18;
+                if (balance < 0.01) {
+                    balance = balance.toFixed(4)
+                } else {
+                    balance = balance.toFixed(2)
+                }
                 tokensElement += `<div class="token">
                     <div class="token-img"></div>
-                    <p><strong>4 ${tkn.symbol}</strong></p>
-                    <p>1,217 USD</p>
+                    <p><strong>${(balance)} ${tkn.symbol}</strong></p>
                     </div>`        
             })
             document.querySelector(".tokens").innerHTML = tokensElement;
         } 
 
-        const init = (account) => {
+        const init = async(account) => {
             if (account) {
                 window.account = account;
+                const matic = {
+                    symbol: "MATIC",
+                    token_address: "0x0000000000000000000000000000000000000000",
+                    balance: Number(await window.ethereum.request({method: 'eth_getBalance', params: [account, 'latest']}))
+                }
+
+                const tokens = [matic, ...(await getTokens(account))];
                 setFrom();
-                setTokens();
-                setPortfolio();
-                document.querySelector(".connect").style.display = "none";
+                setTokens(tokens);
+                setPortfolio(tokens);
+                // document.querySelector(".connect").style.display = "none";
             }
         }
 
         const connect = async() => {
+            // if(window.account) {
+            //     disconnect();
+            //     return;
+            // }
             if (window.ethereum) {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 const account = accounts[0];
@@ -170,18 +181,17 @@
                 provider.on("accountsChanged", (accounts) => {
                     init(accounts[0])
                 });
-
             }
-            
+            // document.getElementById("connect").innerText = "Disconnect ";
         }
 
-        const sign = async (msg) => {
-            if (w3) {
-            return await w3.eth.personal.sign(msg, account);
-            } else {
-                return false
-            }
-        }
+        // const sign = async (msg) => {
+        //     if (w3) {
+        //     return await w3.eth.personal.sign(msg, account);
+        //     } else {
+        //         return false
+        //     }
+        // }
 
         const contract = async (abi, address) => {
             if (w3) {
@@ -192,28 +202,38 @@
         }
 
         var disconnect = async () => {
-            // Close provider session
-            await provider.disconnect()
+            if(provider.connected) {
+                // Close provider session
+                await provider.disconnect();
+            }
         }
 
 
-    var address = "0x4b4f8ca8fb3e66b5ddafcebfe86312cec486dae1"
-    var abi = [{"inputs":[],"name":"count","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"increment","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"}]
+    // var address = "0x4b4f8ca8fb3e66b5ddafcebfe86312cec486dae1"
+    // var abi = [{"inputs":[],"name":"count","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"increment","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"}]
 
+
+        const approveToken = async() => {
+            const tokenAddress = document.getElementById("token").value;
+            const payBtn = document.getElementById("pay");
+            const approveBtn = document.getElementById("approve");
+            const tokenContract = await contract(erc20Abi, tokenAddress);
+            const tx = await tokenContract.methods.approve(reniAddress, "0xffffffffffffffffffffffffffffffff").send({ from: account });
+            await tx.wait;
+            payBtn.style.display = "block";
+            approveBtn.style.display = "none";
+        }
 
         const makePayment = async() => {
             const token = document.getElementById("token").value;
             const amount = document.getElementById("amount").value;
-            console.log("abi", reniAbi);
-            console.log("address", reniAddress);
-            console.log("token", token);
+
             if(token) {
                 console.log(token);
                 const reni = await contract(reniAbi, reniAddress);
                 console.log("reni", reni);
                 const tx = await reni.methods.makePayment(token, amount).send({ from: account });
-                console.log(tx);
-                console.log("tx.wait: ", tx.wait)
+                await tx.wait;
             }
             else {
                 alert("Please select a token");

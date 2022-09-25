@@ -1,7 +1,6 @@
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-etherscan");
-
-var secret = require("./secret.json");
+require("dotenv").config();
 
 module.exports = {
   defaultNetwork: "mumbai",
@@ -9,15 +8,17 @@ module.exports = {
     hardhat: {
     },
     mumbai: {
-      url: `https://rpc-mumbai.maticvigil.com/v1/${secret.APP_ID}`,
-      accounts: [secret.PRIVATE_KEY]
+      url: process.env.QUICKNODE_URL,
+      accounts: [process.env.PRIVATE_KEY]
     }
   },
   etherscan: {
-    apiKey: secret.POLYGONSCAN_API_KEY
+  apiKey: {
+      polygonMumbai: process.env.POLYGONSCAN_API_KEY
+    }
   },
   solidity: {
-    version: "0.8.4",
+    version: "0.8.6",
     settings: {
       optimizer: {
         enabled: true,

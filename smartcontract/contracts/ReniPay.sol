@@ -9,16 +9,16 @@ import "./TransferHelper.sol";
 
 contract ReniPay is Ownable {
 
-	uint256 public slippage;
+    uint256 public slippage;
     address public swapRouter = 0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506;
-    address public stableCoin = 0x28668a708c9a884ac7030033e4Be9cD0a5d2F1BC;
+    address public stableCoin = 0xA5E9Bad00A0b8291b02DEC6286f1db1C35a9903a;
 
-    event paymentSuccessful(uint256 indexed _amount, address indexed _payer);
-    event routerUpdated(address _proviousRouter, address _newRouter);
-    event stableCoinUpdated(address _proviousStableCoin, address _newStableCoin);
-    event slippageUpdated(uint256 _previousSlippage, uint256 _newSlippage);
+    event paymentSuccessful(uint256 indexed amount, address indexed payer, string indexed transactionId);
+    event routerUpdated(address proviousRouter, address newRouter);
+    event stableCoinUpdated(address proviousStableCoin, address newStableCoin);
+    event slippageUpdated(uint256 previousSlippage, uint256 newSlippage);
 
-    function makePayment(address _token, uint256 _amountInUSD) public payable {
+    function makePayment(address _token, uint256 _amountInUSD, string memory _transactionId) public payable {
 
         address[] memory _path;
         _path = new address[](2);
@@ -42,7 +42,7 @@ contract ReniPay is Ownable {
             require(msg.value >= _tokenAmount, 'Insufficient amount!');
             IUniswapV2Router02(swapRouter).swapETHForExactTokens{ value: _tokenAmount }(_amountInUSD, _path, address(this), block.timestamp);
         }
-        emit paymentSuccessful(_amountInUSD, msg.sender);
+        emit paymentSuccessful(_amountInUSD, msg.sender, _transactionId);
     }
 
     function updateRouter(address _router) external onlyOwner {
