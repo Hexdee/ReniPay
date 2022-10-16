@@ -18,7 +18,7 @@ export const Register = () => {
                 email,
                 password
             }
-            const response = await fetch("http://localhost:4001/register", {
+            const response = await fetch("https://renipay.herokuapp.com/register", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

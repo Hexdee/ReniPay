@@ -13,7 +13,7 @@ export const Login = () => {
                 email,
                 password
             }
-            const response = await fetch("http://localhost:4001/login", {
+            const response = await fetch("https://renipay.herokuapp.com/login", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

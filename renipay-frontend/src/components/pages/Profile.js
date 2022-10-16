@@ -11,7 +11,7 @@ export const Profile = () => {
   const getUser = async () => {
     try {
       const token = localStorage.getItem('user_token');
-      const res = await fetch("http://localhost:4001/auth", {
+      const res = await fetch("https://renipay.herokuapp.com/auth", {
         method: "post",
         headers: {
           'Content-Type': 'application/json'
