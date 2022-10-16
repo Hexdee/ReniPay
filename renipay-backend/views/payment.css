@@ -1,0 +1,133 @@
+*, *::after, *::before {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+section {
+    width: 100%;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    padding-top: 0;
+    max-width: 500px;
+    margin: auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.portfolio {
+    background-color: #132d46;
+    min-height: 200px;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+}
+
+.tokens > marquee {
+    margin-top: 70px;
+}
+
+.portfolio h3 {
+    margin-bottom: 30px;
+}
+
+.tokens {
+    display: flex;
+    justify-content: space-between;
+    /* overflow-x: scroll; */
+    overflow: hidden;
+}
+
+.token-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: lightgray;
+}
+
+.token {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 25%;
+}
+
+.form-element {
+    display: flex;
+    justify-content: space-between;
+    margin: 16px 0;
+}
+
+.form-element select, .form-element input {
+    height: 35px;
+    border-color: lightGray;
+    border-radius: 4px;
+}
+
+.form-element input {
+    width: 70%;
+}
+
+.connect {
+    background-color: lightgray;
+    height: 46px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 6px 20px;
+    border-radius: 8px;
+    margin-bottom: 30PX;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.connect:hover {
+    opacity: 80%;
+}
+
+.connect-icon, .token-icon {
+    height: 100%;
+    width: 40px;
+    margin-right: 16px;
+    border-radius: 50%;
+    background-color: #132d46;
+    background-repeat: no-repeat;
+    background-size: 24px;
+    background-position: center;
+    background-image: url("./connect.png");
+}
+
+button {
+    width: 100%;
+    height: 40px;
+    border-radius: 8px;
+    background-color: #132d46;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 80%;
+}
+
+#approve {
+    display: none;
+}
+
+
