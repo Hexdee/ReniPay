@@ -1,0 +1,1 @@
+export const reniapi = 'https://renipay.herokuapp.com';
