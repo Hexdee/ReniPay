@@ -41,7 +41,7 @@ export const Profile = () => {
     <main className='container'>
         <h1><span id="username">{user.first_name} {user.last_name}</span></h1>
         <p>Balance: <strong>$<span id="balance">{user.balance || 0}</span></strong></p>
-        <p>Payment Link: <a href="/johndoe">{`https://renipay.herokuapp.com/${user.username}`}</a></p>
+        <p>Payment Link: <a href={`https://https://renipay.herokuapp.com/${user.username}`}>{`https://renipay.herokuapp.com/${user.username}`}</a></p>
         <p className='logout' onClick={logout}>logout</p>
     </main>
   )
